@@ -22,7 +22,7 @@ openai = ["openai>=1.0"]
 whisper-transcribe-mcp = "whisper_transcribe.server:main"
 
 [project.urls]
-Repository = "https://github.com/yohangonzalez/whisper-transcribe-mcp"
+Repository = "https://github.com/ZahiriNatZuke/whisper-transcribe-mcp"
 
 [tool.hatch.build.targets.wheel]
 packages = ["whisper_transcribe"]
