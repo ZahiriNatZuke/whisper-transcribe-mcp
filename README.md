@@ -8,45 +8,45 @@ MCP server for audio transcription using **faster-whisper** (local, free, offlin
 
 ---
 
-## Requisitos previos
+## Prerequisites
 
 ### macOS
 
-**Opción A — uv (recomendado):**
+**Option A — uv (recommended):**
 ```bash
 brew install uv
-# o
+# or
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-**Opción B — Python:**
-Python 3.10+ ya viene en macOS 12.3+. También podés instalarlo con `brew install python`.
+**Option B — Python:**
+Python 3.10+ is included in macOS 12.3+. You can also install it with `brew install python`.
 
 ---
 
 ### Windows
 
-**Opción A — uv (recomendado):**
+**Option A — uv (recommended):**
 ```powershell
 winget install astral-sh.uv
 ```
-O descargá el installer desde [astral.sh/uv](https://astral.sh/uv).
+Or download the installer from [astral.sh/uv](https://astral.sh/uv).
 
-**Opción B — Python:**
-Descargá Python 3.10+ desde [python.org](https://python.org). Durante la instalación, marcá **"Add Python to PATH"**.
+**Option B — Python:**
+Download Python 3.10+ from [python.org](https://python.org). During installation, check **"Add Python to PATH"**.
 
-> No se necesita instalar ffmpeg ni compiladores adicionales — todo viene bundleado en el paquete.
+> No need to install ffmpeg or any compiler — everything is bundled in the package.
 
 ---
 
 ### Linux
 
-**Opción A — uv (recomendado):**
+**Option A — uv (recommended):**
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-**Opción B — Python:**
+**Option B — Python:**
 ```bash
 # Debian/Ubuntu
 sudo apt install python3.12 python3.12-venv
@@ -58,102 +58,102 @@ sudo dnf install python3.12
 sudo pacman -S python
 ```
 
-> No se necesitan dependencias de sistema adicionales.
+> No additional system dependencies required.
 
 ---
 
-## Instalación
+## Installation
 
-### Opción A — uvx (recomendada, sin instalar nada permanente)
+### Option A — uvx (recommended, no permanent install)
 
-`uvx` descarga e instala el paquete automáticamente en un entorno aislado cada vez que lo usás. Solo necesitás `uv` instalado.
+`uvx` automatically downloads and installs the package in an isolated environment. Only requires `uv` to be installed.
 
 ```bash
-# Backend local:
+# Local backend:
 uvx "whisper-transcribe-mcp[local]"
 
-# Backend OpenAI:
+# OpenAI backend:
 uvx "whisper-transcribe-mcp[openai]"
 
-# Ambos backends:
+# Both backends:
 uvx "whisper-transcribe-mcp[all]"
 ```
 
-### Opción B — pip
+### Option B — pip
 
 ```bash
-# Backend local:
+# Local backend:
 pip install "whisper-transcribe-mcp[local]"
 
-# Backend OpenAI:
+# OpenAI backend:
 pip install "whisper-transcribe-mcp[openai]"
 
-# Ambos backends:
+# Both backends:
 pip install "whisper-transcribe-mcp[all]"
 ```
 
 ---
 
-## Casos de uso
+## Use Cases
 
-### Caso 1 — Solo backend local (gratis, funciona sin internet)
+### Case 1 — Local backend only (free, works offline)
 
-Usa `faster-whisper` para transcribir localmente. El modelo se descarga de HuggingFace la primera vez (~74MB para `base`) y queda cacheado.
+Uses `faster-whisper` to transcribe locally. The model is downloaded from HuggingFace on first use (~74MB for `base`) and cached.
 
-**Instalación:**
+**Install:**
 ```bash
 pip install "whisper-transcribe-mcp[local]"
 ```
 
-**Variables de entorno:**
+**Environment variables:**
 ```
-WHISPER_MODEL=base   # o tiny, small, medium, large-v3
+WHISPER_MODEL=base   # or tiny, small, medium, large-v3
 ```
 
 ---
 
-### Caso 2 — Solo backend OpenAI (mejor precisión, requiere API key)
+### Case 2 — OpenAI backend only (best accuracy, requires API key)
 
-Usa el modelo `whisper-1` de OpenAI. Requiere una API key y conexión a internet. No descarga modelos locales.
+Uses OpenAI's `whisper-1` model. Requires an API key and internet connection. No local model downloads.
 
-**Instalación:**
+**Install:**
 ```bash
 pip install "whisper-transcribe-mcp[openai]"
 ```
 
-**Variables de entorno:**
+**Environment variables:**
 ```
 OPENAI_API_KEY=sk-...
 ```
 
 ---
 
-### Caso 3 — Ambos instalados (OpenAI si hay key, local como fallback)
+### Case 3 — Both backends (OpenAI if key present, local as fallback)
 
-Si `OPENAI_API_KEY` está presente en el entorno, usa OpenAI automáticamente. Si no, usa faster-whisper local.
+If `OPENAI_API_KEY` is set, OpenAI is used automatically. Otherwise falls back to local faster-whisper.
 
-**Instalación:**
+**Install:**
 ```bash
 pip install "whisper-transcribe-mcp[all]"
 ```
 
 ---
 
-## Configuración
+## Configuration
 
 ### Claude Desktop
 
-La ruta del archivo de configuración según tu sistema operativo:
+Config file location by operating system:
 
-| OS | Ruta |
+| OS | Path |
 |---|---|
 | macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
 | Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
 | Linux | `~/.config/Claude/claude_desktop_config.json` |
 
-Agregá la entrada dentro de `"mcpServers"`:
+Add the entry inside `"mcpServers"`:
 
-**Caso 1 — Local:**
+**Case 1 — Local:**
 ```json
 {
   "mcpServers": {
@@ -168,7 +168,7 @@ Agregá la entrada dentro de `"mcpServers"`:
 }
 ```
 
-**Caso 2 — OpenAI:**
+**Case 2 — OpenAI:**
 ```json
 {
   "mcpServers": {
@@ -183,7 +183,7 @@ Agregá la entrada dentro de `"mcpServers"`:
 }
 ```
 
-**Caso 3 — Ambos (OpenAI tiene prioridad si hay key):**
+**Case 3 — Both (OpenAI takes priority if key is set):**
 ```json
 {
   "mcpServers": {
@@ -199,41 +199,41 @@ Agregá la entrada dentro de `"mcpServers"`:
 }
 ```
 
-Reiniciá Claude Desktop después de editar el archivo.
+Restart Claude Desktop after editing the file.
 
 ---
 
 ### Claude Code
 
-Funciona igual en macOS, Windows y Linux. Requiere `uv` instalado.
+Works the same on macOS, Windows, and Linux. Requires `uv` installed.
 
-El archivo de configuración de Claude Code se ubica en:
+Claude Code config file location:
 
-| OS | Global | Por proyecto |
+| OS | Global | Per project |
 |---|---|---|
-| macOS / Linux | `~/.claude.json` | `.claude/settings.json` (raíz del proyecto) |
-| Windows | `C:\Users\<usuario>\.claude.json` | `.claude\settings.json` (raíz del proyecto) |
+| macOS / Linux | `~/.claude.json` | `.claude/settings.json` (project root) |
+| Windows | `C:\Users\<user>\.claude.json` | `.claude\settings.json` (project root) |
 
-La forma más simple de agregar el servidor es con el CLI de Claude Code, que modifica ese archivo automáticamente:
+The easiest way to add the server is via the Claude Code CLI, which updates the config file automatically:
 
 ```bash
-# Caso 1 — Local:
+# Case 1 — Local:
 claude mcp add whisper-transcribe uvx -- "whisper-transcribe-mcp[local]"
 
-# Caso 2 — OpenAI:
+# Case 2 — OpenAI:
 claude mcp add whisper-transcribe uvx --env OPENAI_API_KEY=sk-... -- "whisper-transcribe-mcp[openai]"
 
-# Caso 3 — Ambos:
+# Case 3 — Both:
 claude mcp add whisper-transcribe uvx --env OPENAI_API_KEY=sk-... --env WHISPER_MODEL=base -- "whisper-transcribe-mcp[all]"
 ```
 
-Para agregarlo globalmente (disponible en todos los proyectos), añadí el flag `--global`:
+To add it globally (available in all projects), add the `--global` flag:
 
 ```bash
 claude mcp add --global whisper-transcribe uvx -- "whisper-transcribe-mcp[local]"
 ```
 
-O editá el archivo `~/.claude.json` directamente y agregá dentro de `"mcpServers"`:
+Or edit `~/.claude.json` directly and add inside `"mcpServers"`:
 
 ```json
 {
@@ -251,33 +251,33 @@ O editá el archivo `~/.claude.json` directamente y agregá dentro de `"mcpServe
 
 ---
 
-## Variables de entorno
+## Environment Variables
 
-| Variable | Default | Descripción |
+| Variable | Default | Description |
 |---|---|---|
-| `WHISPER_MODEL` | `base` | Tamaño del modelo local: `tiny`, `base`, `small`, `medium`, `large-v3` |
-| `OPENAI_API_KEY` | — | Si está presente, activa el backend de OpenAI en lugar del local |
+| `WHISPER_MODEL` | `base` | Local model size: `tiny`, `base`, `small`, `medium`, `large-v3` |
+| `OPENAI_API_KEY` | — | If set, activates the OpenAI backend instead of local |
 
 ---
 
-## Herramientas disponibles
+## Available Tools
 
 ### `transcribe_file`
-Transcribe un archivo de audio por ruta (mp3, wav, m4a, ogg, flac, webm, etc.).
+Transcribes an audio file by path (mp3, wav, m4a, ogg, flac, webm, etc.).
 
-**Parámetros:**
-- `file_path` (requerido): Ruta absoluta al archivo de audio
-- `language` (opcional): Código de idioma (`es`, `en`, `fr`, etc.). Se autodetecta si no se indica.
-- `model_size` (opcional): Tamaño del modelo local. Ignorado con el backend de OpenAI.
+**Parameters:**
+- `file_path` (required): Absolute path to the audio file
+- `language` (optional): Language code (`es`, `en`, `fr`, etc.). Auto-detected if not provided.
+- `model_size` (optional): Local model size. Ignored with the OpenAI backend.
 
-**Respuesta:**
+**Response:**
 ```json
 {
-  "text": "Transcripción completa...",
-  "language": "es",
+  "text": "Full transcription...",
+  "language": "en",
   "language_probability": 0.99,
   "segments": [
-    { "start": 0.0, "end": 4.2, "text": "Primer segmento..." }
+    { "start": 0.0, "end": 4.2, "text": "First segment..." }
   ],
   "backend": "local",
   "model": "base"
@@ -287,35 +287,35 @@ Transcribe un archivo de audio por ruta (mp3, wav, m4a, ogg, flac, webm, etc.).
 ---
 
 ### `transcribe_base64`
-Transcribe audio provisto como string en base64. Útil para integraciones programáticas.
+Transcribes audio provided as a base64-encoded string. Useful for programmatic integrations.
 
-**Parámetros:**
-- `audio_base64` (requerido): Audio codificado en base64
-- `extension` (opcional, default `mp3`): Extensión del archivo (`mp3`, `wav`, `ogg`, etc.)
-- `language` (opcional): Código de idioma
-- `model_size` (opcional): Tamaño del modelo local
+**Parameters:**
+- `audio_base64` (required): Base64-encoded audio data
+- `extension` (optional, default `mp3`): File extension (`mp3`, `wav`, `ogg`, etc.)
+- `language` (optional): Language code
+- `model_size` (optional): Local model size
 
 ---
 
 ### `list_models`
-Muestra la configuración activa y los modelos locales disponibles.
+Shows the active backend configuration and available local models.
 
 ---
 
-## Modelos locales disponibles
+## Local Model Sizes
 
-| Modelo | Tamaño | Velocidad relativa | Notas |
+| Model | Size | Relative Speed | Notes |
 |---|---|---|---|
-| `tiny` | 39 MB | ~32x | Más rápido, menos preciso |
-| `base` | 74 MB | ~16x | Buen balance (default) |
-| `small` | 244 MB | ~6x | Mejor precisión |
-| `medium` | 769 MB | ~2x | Alta precisión |
-| `large-v3` | 1.5 GB | ~1x | Máxima precisión, más lento |
+| `tiny` | 39 MB | ~32x | Fastest, least accurate |
+| `base` | 74 MB | ~16x | Good balance (default) |
+| `small` | 244 MB | ~6x | Better accuracy |
+| `medium` | 769 MB | ~2x | High accuracy |
+| `large-v3` | 1.5 GB | ~1x | Best accuracy, slowest |
 
-Los modelos se descargan automáticamente desde HuggingFace en el primer uso y quedan cacheados localmente.
+Models are downloaded automatically from HuggingFace on first use and cached locally.
 
 ---
 
-## Licencia
+## License
 
-MIT — ver [LICENSE](LICENSE)
+MIT — see [LICENSE](LICENSE)

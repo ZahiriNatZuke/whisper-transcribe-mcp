@@ -4,7 +4,7 @@ set -e
 VERSION=$1
 
 if [[ -z "$VERSION" ]]; then
-  echo "Usage: ./release.sh <version>  (e.g. ./release.sh 0.3.0)"
+  echo "Usage: ./release.sh <version>  (e.g. ./release.sh 1.0.0)"
   exit 1
 fi
 
@@ -15,7 +15,11 @@ fi
 
 echo "Releasing v$VERSION..."
 
-sed -i '' "s/^version = \".*\"/version = \"$VERSION\"/" pyproject.toml
+python3 -c "
+import re, pathlib
+p = pathlib.Path('pyproject.toml')
+p.write_text(re.sub(r'^version = \".*\"', 'version = \"$VERSION\"', p.read_text(), flags=re.MULTILINE))
+"
 
 git add pyproject.toml
 git commit -m "chore: bump version to $VERSION"
