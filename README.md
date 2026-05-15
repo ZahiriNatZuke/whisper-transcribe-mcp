@@ -227,10 +227,10 @@ claude mcp add whisper-transcribe uvx --env OPENAI_API_KEY=sk-... -- "whisper-tr
 claude mcp add whisper-transcribe uvx --env OPENAI_API_KEY=sk-... --env WHISPER_MODEL=base -- "whisper-transcribe-mcp[all]"
 ```
 
-To add it globally (available in all projects), add the `--global` flag:
+To add it globally (available in all projects), use `--scope user`:
 
 ```bash
-claude mcp add --global whisper-transcribe uvx -- "whisper-transcribe-mcp[local]"
+claude mcp add --scope user whisper-transcribe uvx -- "whisper-transcribe-mcp[local]"
 ```
 
 Or edit `~/.claude.json` directly and add inside `"mcpServers"`:
