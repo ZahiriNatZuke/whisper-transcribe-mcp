@@ -9,14 +9,25 @@ description = "MCP server for audio transcription via faster-whisper (local) or 
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-keywords = ["mcp", "whisper", "transcription", "audio", "ai"]
+keywords = ["mcp", "whisper", "transcription", "audio", "ai", "speech-to-text"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
 dependencies = [
     "fastmcp>=3.0",
-    "faster-whisper>=1.0",
 ]
 
 [project.optional-dependencies]
+local = ["faster-whisper>=1.0"]
 openai = ["openai>=1.0"]
+all = ["faster-whisper>=1.0", "openai>=1.0"]
 
 [project.scripts]
 whisper-transcribe-mcp = "whisper_transcribe.server:main"

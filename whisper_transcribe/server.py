@@ -16,15 +16,22 @@ _local_model = None
 
 
 def _get_local_model(model_size: str):
-    from faster_whisper import WhisperModel
+    try:
+        from faster_whisper import WhisperModel
+    except ImportError:
+        return None, {"error": "faster-whisper not installed. Run: pip install 'whisper-transcribe-mcp[local]'"}
+
     global _local_model
     if _local_model is None or _local_model.model_size_or_path != model_size:
         _local_model = WhisperModel(model_size, device="cpu", compute_type="int8")
-    return _local_model
+    return _local_model, None
 
 
 def _transcribe_local(path: str, language: str | None, model_size: str) -> dict:
-    model = _get_local_model(model_size)
+    model, err = _get_local_model(model_size)
+    if err:
+        return err
+
     segments, info = model.transcribe(str(path), language=language, beam_size=5)
     segment_list = [
         {"start": round(s.start, 2), "end": round(s.end, 2), "text": s.text.strip()}
@@ -41,7 +48,11 @@ def _transcribe_local(path: str, language: str | None, model_size: str) -> dict:
 
 
 def _transcribe_openai(path: str, language: str | None) -> dict:
-    from openai import OpenAI
+    try:
+        from openai import OpenAI
+    except ImportError:
+        return {"error": "openai package not installed. Run: pip install 'whisper-transcribe-mcp[openai]'"}
+
     client = OpenAI()
     with open(path, "rb") as f:
         result = client.audio.transcriptions.create(
@@ -77,7 +88,7 @@ def transcribe_file(
         language: Language code (e.g. 'es', 'en', 'fr'). Auto-detected if not provided.
         model_size: Local model size: tiny, base, small, medium, large-v3.
                     Ignored when using the OpenAI backend.
-                    Defaults to WHISPER_MODEL env var (currently: {DEFAULT_MODEL}).
+                    Defaults to the WHISPER_MODEL environment variable (default: 'base').
 
     Returns:
         dict with 'text', 'language', 'segments', 'backend', and 'model'.

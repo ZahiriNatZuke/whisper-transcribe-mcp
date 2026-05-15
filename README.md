@@ -1,22 +1,33 @@
 # whisper-transcribe-mcp
 
-MCP server for audio transcription using **faster-whisper** (local, free) or **OpenAI Whisper API** (cloud, requires API key).
+MCP server for audio transcription using **faster-whisper** (local, free, offline) or **OpenAI Whisper API** (cloud, requires API key).
 
 ## Installation
 
 ### Option A — uvx (no install needed, recommended)
 
 ```bash
-uvx whisper-transcribe-mcp
+# Local backend (downloads model on first use):
+uvx "whisper-transcribe-mcp[local]"
+
+# OpenAI backend:
+uvx "whisper-transcribe-mcp[openai]"
+
+# Both backends:
+uvx "whisper-transcribe-mcp[all]"
 ```
 
 ### Option B — pip
 
 ```bash
-pip install whisper-transcribe-mcp
+# Local backend:
+pip install "whisper-transcribe-mcp[local]"
 
-# With OpenAI backend support:
+# OpenAI backend:
 pip install "whisper-transcribe-mcp[openai]"
+
+# Both:
+pip install "whisper-transcribe-mcp[all]"
 ```
 
 ## Configuration
@@ -29,7 +40,7 @@ pip install "whisper-transcribe-mcp[openai]"
   "mcpServers": {
     "whisper-transcribe": {
       "command": "uvx",
-      "args": ["whisper-transcribe-mcp"],
+      "args": ["whisper-transcribe-mcp[local]"],
       "env": {
         "WHISPER_MODEL": "base"
       }
@@ -44,7 +55,7 @@ pip install "whisper-transcribe-mcp[openai]"
   "mcpServers": {
     "whisper-transcribe": {
       "command": "uvx",
-      "args": ["whisper-transcribe-mcp"],
+      "args": ["whisper-transcribe-mcp[openai]"],
       "env": {
         "OPENAI_API_KEY": "sk-..."
       }
@@ -56,7 +67,7 @@ pip install "whisper-transcribe-mcp[openai]"
 ### Claude Code
 
 ```bash
-claude mcp add whisper-transcribe uvx -- whisper-transcribe-mcp
+claude mcp add whisper-transcribe uvx -- "whisper-transcribe-mcp[local]"
 ```
 
 ## Environment Variables
@@ -87,4 +98,8 @@ Show available models and current backend configuration.
 | medium | 769M | ~2x | High accuracy |
 | large-v3 | 1.5G | ~1x | Best accuracy |
 
-Models are downloaded automatically from HuggingFace on first use.
+Models are downloaded automatically from HuggingFace on first use and cached locally.
+
+## License
+
+MIT
