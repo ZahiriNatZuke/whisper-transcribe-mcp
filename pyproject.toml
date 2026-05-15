@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "whisper-transcribe-mcp"
+version = "0.1.0"
+description = "MCP server for audio transcription via faster-whisper (local) or OpenAI Whisper API"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["mcp", "whisper", "transcription", "audio", "ai"]
+dependencies = [
+    "fastmcp>=3.0",
+    "faster-whisper>=1.0",
+]
+
+[project.optional-dependencies]
+openai = ["openai>=1.0"]
+
+[project.scripts]
+whisper-transcribe-mcp = "whisper_transcribe.server:main"
+
+[project.urls]
+Repository = "https://github.com/yohangonzalez/whisper-transcribe-mcp"
+
+[tool.hatch.build.targets.wheel]
+packages = ["whisper_transcribe"]
