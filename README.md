@@ -207,6 +207,15 @@ Reiniciá Claude Desktop después de editar el archivo.
 
 Funciona igual en macOS, Windows y Linux. Requiere `uv` instalado.
 
+El archivo de configuración de Claude Code se ubica en:
+
+| OS | Global | Por proyecto |
+|---|---|---|
+| macOS / Linux | `~/.claude.json` | `.claude/settings.json` (raíz del proyecto) |
+| Windows | `C:\Users\<usuario>\.claude.json` | `.claude\settings.json` (raíz del proyecto) |
+
+La forma más simple de agregar el servidor es con el CLI de Claude Code, que modifica ese archivo automáticamente:
+
 ```bash
 # Caso 1 — Local:
 claude mcp add whisper-transcribe uvx -- "whisper-transcribe-mcp[local]"
@@ -216,6 +225,28 @@ claude mcp add whisper-transcribe uvx --env OPENAI_API_KEY=sk-... -- "whisper-tr
 
 # Caso 3 — Ambos:
 claude mcp add whisper-transcribe uvx --env OPENAI_API_KEY=sk-... --env WHISPER_MODEL=base -- "whisper-transcribe-mcp[all]"
+```
+
+Para agregarlo globalmente (disponible en todos los proyectos), añadí el flag `--global`:
+
+```bash
+claude mcp add --global whisper-transcribe uvx -- "whisper-transcribe-mcp[local]"
+```
+
+O editá el archivo `~/.claude.json` directamente y agregá dentro de `"mcpServers"`:
+
+```json
+{
+  "mcpServers": {
+    "whisper-transcribe": {
+      "command": "uvx",
+      "args": ["whisper-transcribe-mcp[local]"],
+      "env": {
+        "WHISPER_MODEL": "base"
+      }
+    }
+  }
+}
 ```
 
 ---
