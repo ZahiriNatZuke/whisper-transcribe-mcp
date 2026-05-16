@@ -14,6 +14,16 @@ _USE_OPENAI = bool(os.environ.get("OPENAI_API_KEY"))
 
 _local_model = None
 
+GPT_MODEL = "gpt-5.4-nano"
+
+DEFAULT_POST_PROCESS_PROMPT = (
+    "You are a transcription correction assistant. "
+    "Fix spelling errors, grammar, and punctuation in the transcribed text. "
+    "Preserve the original meaning, tone, and language. "
+    "Do not add, remove, or summarize content. "
+    "Return only the corrected text, no explanations."
+)
+
 
 def _get_local_model(model_size: str):
     try:
@@ -53,14 +63,18 @@ def _transcribe_openai(path: str, language: str | None) -> dict:
     except ImportError:
         return {"error": "openai package not installed. Run: pip install 'whisper-transcribe-mcp[openai]'"}
 
-    client = OpenAI()
-    with open(path, "rb") as f:
-        result = client.audio.transcriptions.create(
-            model="whisper-1",
-            file=f,
-            language=language,
-            response_format="verbose_json",
-        )
+    try:
+        client = OpenAI()
+        with open(path, "rb") as f:
+            result = client.audio.transcriptions.create(
+                model="whisper-1",
+                file=f,
+                language=language,
+                response_format="verbose_json",
+            )
+    except Exception as e:
+        return {"error": str(e), "_openai_failed": True}
+
     segments = result.segments or []
     return {
         "text": result.text,
@@ -75,11 +89,48 @@ def _transcribe_openai(path: str, language: str | None) -> dict:
     }
 
 
+def _post_process(text: str, system_prompt: str | None) -> dict:
+    try:
+        from openai import OpenAI
+    except ImportError:
+        return {"error": "openai package not installed. Post-processing requires the openai extra."}
+
+    try:
+        client = OpenAI()
+        response = client.chat.completions.create(
+            model=GPT_MODEL,
+            messages=[
+                {"role": "system", "content": system_prompt or DEFAULT_POST_PROCESS_PROMPT},
+                {"role": "user", "content": text},
+            ],
+        )
+        return {"text": response.choices[0].message.content}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def _apply_post_process(result: dict, system_prompt: str | None) -> dict:
+    if "error" in result:
+        return result
+
+    gpt = _post_process(result["text"], system_prompt)
+    if "error" in gpt:
+        result["post_process_error"] = gpt["error"]
+    else:
+        result["raw_text"] = result["text"]
+        result["text"] = gpt["text"]
+        result["post_process_model"] = GPT_MODEL
+
+    return result
+
+
 @mcp.tool()
 def transcribe_file(
     file_path: str,
     language: str | None = None,
     model_size: str | None = None,
+    post_process: bool = False,
+    post_process_prompt: str | None = None,
 ) -> dict:
     """Transcribe an audio file to text.
 
@@ -89,17 +140,41 @@ def transcribe_file(
         model_size: Local model size: tiny, base, small, medium, large-v3.
                     Ignored when using the OpenAI backend.
                     Defaults to the WHISPER_MODEL environment variable (default: 'base').
+        post_process: If True, passes the transcription through GPT-4.1 to fix spelling,
+                      grammar, and punctuation. Requires the openai package.
+        post_process_prompt: Custom system prompt for post-processing. Use this to provide
+                             domain-specific context, proper nouns, or product names that
+                             Whisper may have misspelled. Falls back to a generic correction
+                             prompt if not provided.
 
     Returns:
         dict with 'text', 'language', 'segments', 'backend', and 'model'.
+        When post_process=True, also includes 'raw_text' (original transcription)
+        and 'post_process_model'. If post-processing fails, includes 'post_process_error'
+        and 'text' retains the original transcription.
     """
     path = Path(file_path).expanduser().resolve()
     if not path.exists():
         return {"error": f"File not found: {file_path}"}
 
     if _USE_OPENAI:
-        return _transcribe_openai(str(path), language)
-    return _transcribe_local(str(path), language, model_size or DEFAULT_MODEL)
+        result = _transcribe_openai(str(path), language)
+        if result.pop("_openai_failed", False):
+            local = _transcribe_local(str(path), language, model_size or DEFAULT_MODEL)
+            if "error" not in local:
+                local["fallback_reason"] = result["error"]
+                result = local
+            else:
+                return result
+        else:
+            pass
+    else:
+        result = _transcribe_local(str(path), language, model_size or DEFAULT_MODEL)
+
+    if post_process:
+        result = _apply_post_process(result, post_process_prompt)
+
+    return result
 
 
 @mcp.tool()
@@ -108,6 +183,8 @@ def transcribe_base64(
     extension: str = "mp3",
     language: str | None = None,
     model_size: str | None = None,
+    post_process: bool = False,
+    post_process_prompt: str | None = None,
 ) -> dict:
     """Transcribe audio provided as a base64-encoded string.
 
@@ -116,9 +193,14 @@ def transcribe_base64(
         extension: File extension for the temp file (mp3, wav, m4a, ogg, etc.).
         language: Language code. Auto-detected if not provided.
         model_size: Local model size. Ignored when using the OpenAI backend.
+        post_process: If True, passes the transcription through GPT-4.1 to fix spelling,
+                      grammar, and punctuation. Requires the openai package.
+        post_process_prompt: Custom system prompt for post-processing. Use this to provide
+                             domain-specific context, proper nouns, or product names.
 
     Returns:
         dict with 'text', 'language', 'segments', 'backend', and 'model'.
+        When post_process=True, also includes 'raw_text' and 'post_process_model'.
     """
     try:
         audio_bytes = base64.b64decode(audio_base64)
@@ -130,7 +212,13 @@ def transcribe_base64(
         tmp_path = tmp.name
 
     try:
-        return transcribe_file(tmp_path, language=language, model_size=model_size)
+        return transcribe_file(
+            tmp_path,
+            language=language,
+            model_size=model_size,
+            post_process=post_process,
+            post_process_prompt=post_process_prompt,
+        )
     finally:
         os.unlink(tmp_path)
 
@@ -150,6 +238,7 @@ def list_models() -> dict:
             {"name": "large-v3", "params": "1.5G", "speed": "~1x",  "note": "Best accuracy, slowest"},
         ],
         "openai_model": "whisper-1 (set OPENAI_API_KEY to activate)",
+        "post_process_model": GPT_MODEL,
     }
 
 
