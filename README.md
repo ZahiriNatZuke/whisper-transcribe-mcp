@@ -431,6 +431,18 @@ To find your exact `uvx.exe` path, run in PowerShell:
 where.exe uvx
 ```
 
+### Transcribing audio files in Claude Desktop
+
+**Symptom:** Claude Desktop fails to transcribe an uploaded audio file. It may attempt to read the file as base64 and pass it to `transcribe_base64`, which then fails or hangs for files larger than ~50 KB.
+
+**Cause:** Claude Desktop runs in a sandboxed Linux container. When you upload a file using the attachment button, it is stored at a path like `/mnt/user-data/uploads/audio.mp3` — inside the container. The MCP server runs on your Windows machine and has no access to that container path. Claude's fallback of base64-encoding the file and passing it to `transcribe_base64` fails in practice because even a small audio file produces hundreds of kilobytes of base64 text, which overflows the context window before the tool call can be made.
+
+**Fix:** Do not use the attachment button to upload audio files. Instead, place the file anywhere on your Windows filesystem and reference its path directly in the message:
+
+> *"Transcribe the file at `C:\Users\YourUser\Downloads\audio.mp3`"*
+
+The MCP server will read the file directly from Windows and send it to the transcription backend. This works for files of any size within the Whisper API limit (25 MB).
+
 ---
 
 ## License

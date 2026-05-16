@@ -42,11 +42,15 @@ def _transcribe_local(path: str, language: str | None, model_size: str) -> dict:
     if err:
         return err
 
-    segments, info = model.transcribe(str(path), language=language, beam_size=5)
-    segment_list = [
-        {"start": round(s.start, 2), "end": round(s.end, 2), "text": s.text.strip()}
-        for s in segments
-    ]
+    try:
+        segments, info = model.transcribe(str(path), language=language, beam_size=5)
+        segment_list = [
+            {"start": round(s.start, 2), "end": round(s.end, 2), "text": s.text.strip()}
+            for s in segments
+        ]
+    except Exception as e:
+        return {"error": f"Transcription failed: {e}"}
+
     return {
         "text": " ".join(s["text"] for s in segment_list),
         "language": info.language,
@@ -64,7 +68,7 @@ def _transcribe_openai(path: str, language: str | None) -> dict:
         return {"error": "openai package not installed. Run: pip install 'whisper-transcribe-mcp[openai]'"}
 
     try:
-        client = OpenAI()
+        client = OpenAI(timeout=60.0)
         with open(path, "rb") as f:
             result = client.audio.transcriptions.create(
                 model="whisper-1",
@@ -81,7 +85,7 @@ def _transcribe_openai(path: str, language: str | None) -> dict:
         "language": result.language,
         "language_probability": 1.0,
         "segments": [
-            {"start": s.start, "end": s.end, "text": s.text}
+            {"start": round(s.start, 2), "end": round(s.end, 2), "text": s.text.strip()}
             for s in segments
         ],
         "backend": "openai",
@@ -96,7 +100,7 @@ def _post_process(text: str, system_prompt: str | None) -> dict:
         return {"error": "openai package not installed. Post-processing requires the openai extra."}
 
     try:
-        client = OpenAI()
+        client = OpenAI(timeout=30.0)
         response = client.chat.completions.create(
             model=GPT_MODEL,
             messages=[
@@ -140,7 +144,7 @@ def transcribe_file(
         model_size: Local model size: tiny, base, small, medium, large-v3.
                     Ignored when using the OpenAI backend.
                     Defaults to the WHISPER_MODEL environment variable (default: 'base').
-        post_process: If True, passes the transcription through GPT-4.1 to fix spelling,
+        post_process: If True, passes the transcription through GPT to fix spelling,
                       grammar, and punctuation. Requires the openai package.
         post_process_prompt: Custom system prompt for post-processing. Use this to provide
                              domain-specific context, proper nouns, or product names that
@@ -156,18 +160,20 @@ def transcribe_file(
     path = Path(file_path).expanduser().resolve()
     if not path.exists():
         return {"error": f"File not found: {file_path}"}
+    if path.stat().st_size == 0:
+        return {"error": f"File is empty: {file_path}"}
 
     if _USE_OPENAI:
         result = _transcribe_openai(str(path), language)
         if result.pop("_openai_failed", False):
+            openai_error = result["error"]
             local = _transcribe_local(str(path), language, model_size or DEFAULT_MODEL)
             if "error" not in local:
-                local["fallback_reason"] = result["error"]
+                local["fallback_reason"] = openai_error
                 result = local
             else:
+                result["openai_error"] = openai_error
                 return result
-        else:
-            pass
     else:
         result = _transcribe_local(str(path), language, model_size or DEFAULT_MODEL)
 
@@ -193,7 +199,7 @@ def transcribe_base64(
         extension: File extension for the temp file (mp3, wav, m4a, ogg, etc.).
         language: Language code. Auto-detected if not provided.
         model_size: Local model size. Ignored when using the OpenAI backend.
-        post_process: If True, passes the transcription through GPT-4.1 to fix spelling,
+        post_process: If True, passes the transcription through GPT to fix spelling,
                       grammar, and punctuation. Requires the openai package.
         post_process_prompt: Custom system prompt for post-processing. Use this to provide
                              domain-specific context, proper nouns, or product names.
@@ -203,7 +209,7 @@ def transcribe_base64(
         When post_process=True, also includes 'raw_text' and 'post_process_model'.
     """
     try:
-        audio_bytes = base64.b64decode(audio_base64)
+        audio_bytes = base64.b64decode(audio_base64, validate=True)
     except Exception as e:
         return {"error": f"Invalid base64 data: {e}"}
 
