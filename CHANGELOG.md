@@ -8,7 +8,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
-- Corrected the pinned `mcp-publisher` checksum and added a manual, idempotent release retry.
+- Corrected the pinned `mcp-publisher` checksum and added a manual, idempotent release retry that
+  skips the PyPI upload when the immutable version already exists.
 
 ## [1.1.2] - 2026-07-23
 

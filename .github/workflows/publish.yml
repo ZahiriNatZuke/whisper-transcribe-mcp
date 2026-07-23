@@ -58,7 +58,21 @@ jobs:
       - name: Build package
         run: uv build
 
+      - name: Check whether the version already exists on PyPI
+        id: pypi
+        shell: bash
+        run: |
+          version="${RELEASE_TAG#v}"
+          if curl --max-time 20 --fail --silent --show-error \
+            "https://pypi.org/pypi/whisper-transcribe-mcp/${version}/json" \
+            >/dev/null; then
+            echo "exists=true" >>"$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >>"$GITHUB_OUTPUT"
+          fi
+
       - name: Publish to PyPI with Trusted Publishing
+        if: steps.pypi.outputs.exists != 'true'
         run: uv publish --trusted-publishing always --check-url https://pypi.org/simple/
 
       - name: Wait for PyPI metadata
