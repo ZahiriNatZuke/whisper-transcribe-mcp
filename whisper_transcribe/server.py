@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Whisper MCP server — local faster-whisper or OpenAI Whisper API backend."""
 
+import base64
 import os
 import tempfile
-import base64
 from pathlib import Path
+
 from fastmcp import FastMCP
 
 mcp = FastMCP("whisper-transcribe")
@@ -29,7 +30,9 @@ def _get_local_model(model_size: str):
     try:
         from faster_whisper import WhisperModel
     except ImportError:
-        return None, {"error": "faster-whisper not installed. Run: pip install 'whisper-transcribe-mcp[local]'"}
+        return None, {
+            "error": "faster-whisper not installed. Run: pip install 'whisper-transcribe-mcp[local]'"
+        }
 
     global _local_model
     if _local_model is None or _local_model.model_size_or_path != model_size:
@@ -65,7 +68,9 @@ def _transcribe_openai(path: str, language: str | None) -> dict:
     try:
         from openai import OpenAI
     except ImportError:
-        return {"error": "openai package not installed. Run: pip install 'whisper-transcribe-mcp[openai]'"}
+        return {
+            "error": "openai package not installed. Run: pip install 'whisper-transcribe-mcp[openai]'"
+        }
 
     try:
         client = OpenAI(timeout=60.0)
@@ -237,11 +242,16 @@ def list_models() -> dict:
         "default_local_model": DEFAULT_MODEL,
         "current_loaded_model": _local_model.model_size_or_path if _local_model else None,
         "local_models": [
-            {"name": "tiny",     "params": "39M",  "speed": "~32x", "note": "Fastest, least accurate"},
-            {"name": "base",     "params": "74M",  "speed": "~16x", "note": "Good balance"},
-            {"name": "small",    "params": "244M", "speed": "~6x",  "note": "Better accuracy"},
-            {"name": "medium",   "params": "769M", "speed": "~2x",  "note": "High accuracy"},
-            {"name": "large-v3", "params": "1.5G", "speed": "~1x",  "note": "Best accuracy, slowest"},
+            {"name": "tiny", "params": "39M", "speed": "~32x", "note": "Fastest, least accurate"},
+            {"name": "base", "params": "74M", "speed": "~16x", "note": "Good balance"},
+            {"name": "small", "params": "244M", "speed": "~6x", "note": "Better accuracy"},
+            {"name": "medium", "params": "769M", "speed": "~2x", "note": "High accuracy"},
+            {
+                "name": "large-v3",
+                "params": "1.5G",
+                "speed": "~1x",
+                "note": "Best accuracy, slowest",
+            },
         ],
         "openai_model": "whisper-1 (set OPENAI_API_KEY to activate)",
         "post_process_model": GPT_MODEL,

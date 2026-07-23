@@ -1,0 +1,40 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ZahiriNatZuke/whisper-transcribe-mcp",
+  "title": "Whisper Transcribe",
+  "description": "Transcribe audio locally with faster-whisper or through the OpenAI Whisper API.",
+  "websiteUrl": "https://github.com/ZahiriNatZuke/whisper-transcribe-mcp",
+  "repository": {
+    "url": "https://github.com/ZahiriNatZuke/whisper-transcribe-mcp",
+    "source": "github"
+  },
+  "version": "1.1.1",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "whisper-transcribe-mcp",
+      "version": "1.1.1",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "OPENAI_API_KEY",
+          "description": "OpenAI API key. Enables the cloud backend and optional GPT post-processing.",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "WHISPER_MODEL",
+          "description": "Default faster-whisper model size when using the local backend.",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "default": "base"
+        }
+      ]
+    }
+  ]
+}

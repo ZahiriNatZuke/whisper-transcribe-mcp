@@ -1,6 +1,9 @@
+<!-- mcp-name: io.github.ZahiriNatZuke/whisper-transcribe-mcp -->
+
 # whisper-transcribe-mcp
 
 [![PyPI version](https://img.shields.io/pypi/v/whisper-transcribe-mcp)](https://pypi.org/project/whisper-transcribe-mcp/)
+[![CI](https://github.com/ZahiriNatZuke/whisper-transcribe-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/ZahiriNatZuke/whisper-transcribe-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 
@@ -442,6 +445,33 @@ where.exe uvx
 > *"Transcribe the file at `C:\Users\YourUser\Downloads\audio.mp3`"*
 
 The MCP server will read the file directly from Windows and send it to the transcription backend. This works for files of any size within the Whisper API limit (25 MB).
+
+---
+
+## Development
+
+This project uses [`uv`](https://docs.astral.sh/uv/) for reproducible development environments:
+
+```bash
+uv sync --group dev
+uv run ruff check .
+uv run ruff format --check .
+uv run pytest -q
+uv run pre-commit install
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow.
+
+## Distribution and releases
+
+The package is distributed through [PyPI](https://pypi.org/project/whisper-transcribe-mcp/) and
+described by `server.json` for the
+[official MCP Registry](https://registry.modelcontextprotocol.io/). Version tags publish both
+destinations through GitHub OIDC, without long-lived publishing tokens. See
+[docs/publishing.md](docs/publishing.md) for the release checklist and one-time repository setup.
+
+The Registry entry describes the base PyPI package. Choose the `[local]`, `[openai]`, or `[all]`
+extra from the installation examples above so the transcription backend you need is installed.
 
 ---
 

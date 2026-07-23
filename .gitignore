@@ -1,9 +1,22 @@
-.idea
-.claude
-.venv/
+# Editors and local client configuration
+.idea/
+.claude/
+
+# Python
 __pycache__/
-*.pyc
+*.py[oc]
 *.egg-info/
 dist/
 build/
+wheels/
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environments and local secrets
+.venv/
+.env
+*.secret
+secrets.*
+
+# OS files
 .DS_Store

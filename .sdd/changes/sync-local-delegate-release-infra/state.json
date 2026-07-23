@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "slug": "sync-local-delegate-release-infra",
+  "title": "Align release and MCP registry infrastructure with local-delegate",
+  "mode": "standard",
+  "status": "closed",
+  "createdAt": "2026-07-23T21:14:56.377Z",
+  "updatedAt": "2026-07-23T21:29:25.373Z",
+  "gates": {
+    "spec": {
+      "status": "approved",
+      "updatedAt": "2026-07-23T21:19:28.980Z",
+      "evidence": "Spec requirements REQ-001..REQ-007 are observable, scoped, and grounded in local-delegate plus official MCP Registry documentation.",
+      "actor": "user"
+    },
+    "plan": {
+      "status": "approved",
+      "updatedAt": "2026-07-23T21:19:29.323Z",
+      "evidence": "Plan maps every requirement to files and fresh verification; adversarial review found no blocking issue and external publishing is explicitly excluded.",
+      "actor": "user"
+    },
+    "quality": {
+      "status": "approved",
+      "updatedAt": "2026-07-23T21:29:24.963Z",
+      "evidence": "uv lock/sync, Ruff lint/format, 10 pytest tests, live Registry schema validation, bash syntax, package build, pre-commit, and redacted gitleaks all passed.",
+      "actor": "user"
+    },
+    "conformance": {
+      "status": "approved",
+      "updatedAt": "2026-07-23T21:29:25.107Z",
+      "evidence": "REQ-001 through REQ-007 are implemented and reviewed against the actual diff; only live OIDC publication is deferred by scope to the next release tag.",
+      "actor": "user"
+    },
+    "memory": {
+      "status": "approved",
+      "updatedAt": "2026-07-23T21:29:25.289Z",
+      "evidence": "Handoff and durable decisions are recorded in project SDD/docs; no external memory write was authorized or needed.",
+      "actor": "user"
+    }
+  },
+  "history": [
+    {
+      "type": "transition",
+      "from": null,
+      "to": "understanding",
+      "at": "2026-07-23T21:14:56.377Z",
+      "reason": "SDD change created"
+    },
+    {
+      "type": "gate",
+      "gate": "spec",
+      "status": "approved",
+      "at": "2026-07-23T21:19:28.980Z",
+      "evidence": "Spec requirements REQ-001..REQ-007 are observable, scoped, and grounded in local-delegate plus official MCP Registry documentation.",
+      "actor": "user"
+    },
+    {
+      "type": "gate",
+      "gate": "plan",
+      "status": "approved",
+      "at": "2026-07-23T21:19:29.323Z",
+      "evidence": "Plan maps every requirement to files and fresh verification; adversarial review found no blocking issue and external publishing is explicitly excluded.",
+      "actor": "user"
+    },
+    {
+      "type": "transition",
+      "from": "understanding",
+      "to": "researching",
+      "at": "2026-07-23T21:19:59.652Z",
+      "reason": "Repository and official Registry research recorded."
+    },
+    {
+      "type": "transition",
+      "from": "researching",
+      "to": "specifying",
+      "at": "2026-07-23T21:19:59.732Z",
+      "reason": "Research resolved all material publication questions."
+    },
+    {
+      "type": "transition",
+      "from": "specifying",
+      "to": "planning",
+      "at": "2026-07-23T21:19:59.804Z",
+      "reason": "Verifiable specification approved."
+    },
+    {
+      "type": "transition",
+      "from": "planning",
+      "to": "plan-review",
+      "at": "2026-07-23T21:19:59.868Z",
+      "reason": "Implementation plan completed."
+    },
+    {
+      "type": "transition",
+      "from": "plan-review",
+      "to": "implementing",
+      "at": "2026-07-23T21:19:59.944Z",
+      "reason": "Plan review has no blocking findings."
+    },
+    {
+      "type": "transition",
+      "from": "implementing",
+      "to": "verifying",
+      "at": "2026-07-23T21:29:24.887Z",
+      "reason": "Implementation complete; fresh project-native verification executed."
+    },
+    {
+      "type": "gate",
+      "gate": "quality",
+      "status": "approved",
+      "at": "2026-07-23T21:29:24.963Z",
+      "evidence": "uv lock/sync, Ruff lint/format, 10 pytest tests, live Registry schema validation, bash syntax, package build, pre-commit, and redacted gitleaks all passed.",
+      "actor": "user"
+    },
+    {
+      "type": "transition",
+      "from": "verifying",
+      "to": "result-review",
+      "at": "2026-07-23T21:29:25.032Z",
+      "reason": "Quality gate approved with fresh evidence."
+    },
+    {
+      "type": "gate",
+      "gate": "conformance",
+      "status": "approved",
+      "at": "2026-07-23T21:29:25.107Z",
+      "evidence": "REQ-001 through REQ-007 are implemented and reviewed against the actual diff; only live OIDC publication is deferred by scope to the next release tag.",
+      "actor": "user"
+    },
+    {
+      "type": "transition",
+      "from": "result-review",
+      "to": "closing",
+      "at": "2026-07-23T21:29:25.205Z",
+      "reason": "Result review conforms with documented external-release note and no blocking findings."
+    },
+    {
+      "type": "gate",
+      "gate": "memory",
+      "status": "approved",
+      "at": "2026-07-23T21:29:25.289Z",
+      "evidence": "Handoff and durable decisions are recorded in project SDD/docs; no external memory write was authorized or needed.",
+      "actor": "user"
+    },
+    {
+      "type": "transition",
+      "from": "closing",
+      "to": "closed",
+      "at": "2026-07-23T21:29:25.373Z",
+      "reason": "All gates approved and the implementation is ready for user review."
+    }
+  ]
+}
