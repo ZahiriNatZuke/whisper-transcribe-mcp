@@ -1,0 +1,27 @@
+# Project-scoped Codex MCP configuration.
+[mcp_servers.MCP_DOCKER]
+command = "docker"
+args = ["mcp", "gateway", "run"]
+
+[mcp_servers.MCP_DOCKER.env]
+LOCALAPPDATA = "C:\\Users\\Yohan\\AppData\\Local"
+ProgramData = "C:\\ProgramData"
+ProgramFiles = "C:\\Program Files"
+
+[mcp_servers.codegraph]
+command = "codegraph"
+args = ["serve", "--mcp"]
+
+[mcp_servers.git]
+command = "C:\\Users\\Yohan\\.local\\bin\\uvx.exe"
+args = ["mcp-server-git"]
+
+[mcp_servers.github]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-github"]
+env_vars = ["GITHUB_PERSONAL_ACCESS_TOKEN"]
+
+[mcp_servers.socket-mcp]
+url = "https://mcp.socket.dev/"
+[mcp_servers.jetbrains]
+url = "http://localhost:64342/sse"
