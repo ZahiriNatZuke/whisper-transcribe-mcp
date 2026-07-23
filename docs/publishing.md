@@ -42,6 +42,16 @@ The tag starts `.github/workflows/publish.yml`, which:
 
 No PyPI token or MCP Registry token is stored in GitHub Secrets.
 
+If a downstream step fails after PyPI has accepted the package, repair the workflow on `main` and
+retry the same immutable release without moving its tag:
+
+```bash
+gh workflow run publish.yml -f tag=vX.Y.Z
+```
+
+The publish steps are idempotent: existing PyPI files and an existing MCP Registry version are
+detected and skipped.
+
 ## Registry ownership and first publication
 
 The Registry verifies a PyPI package by reading this exact marker from the README published on

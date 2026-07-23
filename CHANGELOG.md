@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Corrected the pinned `mcp-publisher` checksum and added a manual, idempotent release retry.
+
 ## [1.1.2] - 2026-07-23
 
 ### Added

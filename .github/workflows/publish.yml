@@ -5,6 +5,12 @@ name: Publish
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing semantic version tag to publish or retry (for example v1.1.2)"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -18,7 +24,8 @@ jobs:
       id-token: write
     env:
       MCP_PUBLISHER_VERSION: v1.7.9
-      MCP_PUBLISHER_SHA256: a818239b29a85025d79a1757b61979cf863fd6b3ba5b2b0eb4cf502fde495c73
+      MCP_PUBLISHER_SHA256: ab128162b0616090b47cf245afe0a23f3ef08936fdce19074f5ba4e9dce00af441ef
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
 
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +46,7 @@ jobs:
             https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json \
             --output /tmp/server.schema.json
           uv run python scripts/check_release_metadata.py \
-            --tag "$GITHUB_REF_NAME" \
+            --tag "$RELEASE_TAG" \
             --schema /tmp/server.schema.json
 
       - name: Run quality checks
@@ -57,7 +64,7 @@ jobs:
       - name: Wait for PyPI metadata
         shell: bash
         run: |
-          version="${GITHUB_REF_NAME#v}"
+          version="${RELEASE_TAG#v}"
           for attempt in {1..12}; do
             published="$(curl --fail --silent --show-error \
               https://pypi.org/pypi/whisper-transcribe-mcp/json | jq -r '.info.version' || true)"
@@ -83,7 +90,7 @@ jobs:
       - name: Publish to the official MCP Registry
         shell: bash
         run: |
-          version="${GITHUB_REF_NAME#v}"
+          version="${RELEASE_TAG#v}"
           registry_json="$(curl --max-time 20 --fail --silent --show-error \
             'https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.ZahiriNatZuke%2Fwhisper-transcribe-mcp' \
             || true)"
