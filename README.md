@@ -318,6 +318,7 @@ Or edit `~/.claude.json` directly and add inside `"mcpServers"`:
 |---|---|---|
 | `WHISPER_MODEL` | `base` | Local model size: `tiny`, `base`, `small`, `medium`, `large-v3` |
 | `OPENAI_API_KEY` | — | If set, activates the OpenAI backend instead of local |
+| `WHISPER_POST_PROCESS_MODEL` | `gpt-5.4-nano` | OpenAI chat model used when `post_process=true` |
 
 ### Backend selection and fallback (`[all]` only)
 
@@ -325,6 +326,25 @@ When installed with `[all]`, the backend is chosen at startup:
 
 - `OPENAI_API_KEY` **set** → OpenAI is used. If the API call fails at runtime (network error, invalid key, quota exceeded), the server automatically falls back to local `faster-whisper` and includes a `"fallback_reason"` field in the response.
 - `OPENAI_API_KEY` **not set** → local `faster-whisper` is used directly, no fallback attempted.
+
+---
+
+## Security and Permissions
+
+The server runs locally over stdio and only needs the access its tools imply:
+
+| Access | Why |
+|---|---|
+| File system read | `transcribe_file` reads the audio file path you pass it. |
+| Temporary files | `transcribe_base64` writes the decoded audio to a private temp file and always deletes it. |
+| Network | Only for the OpenAI backend / post-processing, and for the first download of a local model from Hugging Face. |
+| Environment variables | `OPENAI_API_KEY`, `WHISPER_MODEL`, `WHISPER_POST_PROCESS_MODEL`. |
+
+Tool inputs are validated before use: `model_size` must be a known Whisper model name,
+`language` must be an ISO 639 code, and `extension` must be a known audio format. OpenAI errors
+are returned as a short summary (error type and HTTP status); the full message goes to stderr.
+Releases are published from GitHub Actions with PyPI Trusted Publishing and PEP 740 provenance
+attestations.
 
 ---
 

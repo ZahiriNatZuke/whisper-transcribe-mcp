@@ -119,3 +119,60 @@ def test_list_models_reports_loaded_model(monkeypatch) -> None:
         "medium",
         "large-v3",
     }
+
+
+def test_transcribe_base64_rejects_unsafe_extension(monkeypatch) -> None:
+    monkeypatch.setattr(server, "transcribe_file", lambda *a, **k: {"text": "should not run"})
+
+    result = server.transcribe_base64(base64.b64encode(b"audio").decode(), extension="../../x")
+
+    assert result["error"].startswith("Unsupported extension:")
+
+
+def test_transcribe_base64_cleans_up_when_transcription_raises(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(server.tempfile, "tempdir", str(tmp_path))
+
+    def boom(path: str, **kwargs):
+        raise RuntimeError("unexpected")
+
+    monkeypatch.setattr(server, "transcribe_file", boom)
+
+    try:
+        server.transcribe_base64(base64.b64encode(b"audio").decode(), extension="WAV")
+    except RuntimeError:
+        pass
+
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_transcribe_file_rejects_invalid_language(tmp_path: Path) -> None:
+    audio = tmp_path / "audio.wav"
+    audio.write_bytes(b"audio")
+
+    result = server.transcribe_file(str(audio), language="es; rm -rf /")
+
+    assert result["error"].startswith("Invalid language code:")
+
+
+def test_transcribe_file_rejects_unknown_model(tmp_path: Path) -> None:
+    audio = tmp_path / "audio.wav"
+    audio.write_bytes(b"audio")
+
+    result = server.transcribe_file(str(audio), model_size="attacker/remote-model")
+
+    assert result["error"].startswith("Unknown model_size:")
+
+
+def test_transcribe_file_rejects_directory(tmp_path: Path) -> None:
+    assert server.transcribe_file(str(tmp_path)) == {"error": f"File not found: {tmp_path}"}
+
+
+def test_openai_error_message_hides_response_body(capsys) -> None:
+    class FakeAPIError(Exception):
+        status_code = 401
+
+    message = server._openai_error_message(FakeAPIError("Incorrect API key provided: sk-abc123"))
+
+    assert message == "OpenAI request failed: FakeAPIError (HTTP 401)"
+    assert "sk-abc123" not in message
+    assert "sk-abc123" in capsys.readouterr().err

@@ -33,6 +33,14 @@
           "format": "string",
           "isSecret": false,
           "default": "base"
+        },
+        {
+          "name": "WHISPER_POST_PROCESS_MODEL",
+          "description": "OpenAI chat model used for optional GPT post-processing.",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "default": "gpt-5.4-nano"
         }
       ]
     }

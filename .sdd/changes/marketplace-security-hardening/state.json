@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "slug": "marketplace-security-hardening",
+  "title": "Harden server and release pipeline against marketplace security findings",
+  "mode": "lightweight",
+  "status": "closed",
+  "createdAt": "2026-09-22T13:21:30.676431Z",
+  "updatedAt": "2026-09-22T13:21:30.676431Z",
+  "gates": {
+    "plan": {
+      "status": "approved",
+      "updatedAt": "2026-09-22T13:21:30.676431Z",
+      "evidence": "User approved the plan in chat (dependency floors, input validation, OIDC provenance).",
+      "actor": "user"
+    },
+    "quality": {
+      "status": "approved",
+      "updatedAt": "2026-09-22T13:21:30.676431Z",
+      "evidence": "Ruff, 16 pytest tests, schema validation, build, e2e local transcription passed.",
+      "actor": "user"
+    },
+    "conformance": {
+      "status": "approved",
+      "updatedAt": "2026-09-22T13:21:30.676431Z",
+      "evidence": "REQ-1..REQ-7 implemented; see brief.md verification.",
+      "actor": "user"
+    }
+  }
+}

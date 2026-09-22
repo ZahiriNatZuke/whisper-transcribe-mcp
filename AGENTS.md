@@ -46,10 +46,12 @@ and then to the official MCP Registry using OIDC. See `docs/publishing.md` for t
 
 The entire server lives in a single file: `whisper_transcribe/server.py`.
 
-- Built on **FastMCP** (`fastmcp>=3.0`), which handles MCP protocol, tool registration, and stdio transport.
+- Built on **FastMCP** (`fastmcp>=3.2.0`, the first release without known advisories), which handles MCP protocol, tool registration, and stdio transport.
 - Backend selection is determined at startup by the presence of `OPENAI_API_KEY` — there is no runtime switching.
 - The local `WhisperModel` is lazily loaded and cached in `_local_model` (module-level global), and reloaded only if the requested `model_size` changes.
 - `transcribe_base64` delegates to `transcribe_file` after writing a temp file, then cleans it up.
+- Tool inputs (`language`, `model_size`, `extension`) are validated against allowlists before use;
+  OpenAI errors are summarized (type + HTTP status) and the raw message only goes to stderr.
 
 ### Optional dependency groups (`pyproject.toml`)
 
@@ -64,8 +66,9 @@ Missing extras produce a descriptive `{"error": "..."}` dict — not exceptions 
 ## Key Design Decisions
 
 - **No ffmpeg requirement**: `faster-whisper` bundles what it needs; this is explicitly called out in the README for Windows/Linux users.
-- **OIDC trusted publishing**: `uv publish` uploads to PyPI, then `mcp-publisher` registers the
-  matching `server.json`; both use GitHub OIDC, so no publishing tokens are stored in the repo.
+- **OIDC trusted publishing**: `pypa/gh-action-pypi-publish` (pinned by SHA) uploads to PyPI with
+  PEP 740 provenance attestations, then `mcp-publisher` registers the matching `server.json`; both
+  use GitHub OIDC, so no publishing tokens are stored in the repo.
 - **Synchronized release metadata**: `pyproject.toml`, `uv.lock`, and both versions in
   `server.json` must match the semantic version tag.
 - The `model_size` parameter in tools is silently ignored when `OPENAI_API_KEY` is set.

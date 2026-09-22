@@ -41,10 +41,12 @@ python -m build
 
 The entire server lives in a single file: `whisper_transcribe/server.py`.
 
-- Built on **FastMCP** (`fastmcp>=3.0`), which handles MCP protocol, tool registration, and stdio transport.
+- Built on **FastMCP** (`fastmcp>=3.2.0`, the first release without known advisories), which handles MCP protocol, tool registration, and stdio transport.
 - Backend selection is determined at startup by the presence of `OPENAI_API_KEY` — there is no runtime switching.
 - The local `WhisperModel` is lazily loaded and cached in `_local_model` (module-level global), and reloaded only if the requested `model_size` changes.
 - `transcribe_base64` delegates to `transcribe_file` after writing a temp file, then cleans it up.
+- Tool inputs (`language`, `model_size`, `extension`) are validated against allowlists before use;
+  OpenAI errors are summarized (type + HTTP status) and the raw message only goes to stderr.
 
 ### Optional dependency groups (`pyproject.toml`)
 
@@ -59,5 +61,5 @@ Missing extras produce a descriptive `{"error": "..."}` dict — not exceptions 
 ## Key Design Decisions
 
 - **No ffmpeg requirement**: `faster-whisper` bundles what it needs; this is explicitly called out in the README for Windows/Linux users.
-- **OIDC trusted publisher**: PyPI publish uses `pypa/gh-action-pypi-publish` with OIDC (`id-token: write`), so no PyPI token secrets are needed in the repo.
+- **OIDC trusted publisher**: PyPI publish uses `pypa/gh-action-pypi-publish` (pinned by SHA) with OIDC (`id-token: write`) and PEP 740 provenance attestations, so no PyPI token secrets are needed in the repo.
 - The `model_size` parameter in tools is silently ignored when `OPENAI_API_KEY` is set.

@@ -35,12 +35,20 @@ The tag starts `.github/workflows/publish.yml`, which:
 
 1. Revalidates the lockfile, tag, manifests, and official `server.json` schema.
 2. Runs Ruff and pytest and builds the wheel/source distribution.
-3. Publishes idempotently to PyPI using Trusted Publishing.
+3. Publishes idempotently to PyPI using Trusted Publishing via `pypa/gh-action-pypi-publish`,
+   which also uploads PEP 740 provenance attestations for the wheel and sdist.
 4. Waits until PyPI exposes the new metadata.
 5. Downloads a pinned, checksum-verified `mcp-publisher`, authenticates with GitHub OIDC, and
    publishes the same version to the official MCP Registry.
 
-No PyPI token or MCP Registry token is stored in GitHub Secrets.
+No PyPI token or MCP Registry token is stored in GitHub Secrets. Every third-party action is
+pinned to a full commit SHA; Dependabot proposes updates.
+
+After a release, confirm the provenance is available:
+
+```bash
+curl -s -H "Accept: application/vnd.pypi.integrity.v1+json"   https://pypi.org/integrity/whisper-transcribe-mcp/X.Y.Z/whisper_transcribe_mcp-X.Y.Z-py3-none-any.whl/provenance
+```
 
 If a downstream step fails after PyPI has accepted the package, repair the workflow on `main` and
 retry the same immutable release without moving its tag:

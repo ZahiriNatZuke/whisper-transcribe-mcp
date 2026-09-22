@@ -6,8 +6,27 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-09-22
+
+### Security
+
+- Require `fastmcp>=3.2.0` (fixes GHSA-vv7q-7jx5-f767, GHSA-rww4-4w9c-7733, GHSA-m8x7-r2rg-vh5g)
+  and `mcp>=1.28.1` (fixes GHSA-vj7q-gjh5-988w, GHSA-jpw9-pfvf-9f58, GHSA-hvrp-rf83-w775).
+- `transcribe_base64` only accepts known audio extensions, so the temp file can no longer be
+  written outside the temp directory; the temp file is removed even if writing it fails.
+- `model_size` and `language` are validated against allowlists before reaching the backend.
+- OpenAI errors are returned as a short summary (type and HTTP status); details go to stderr.
+- PyPI releases now include PEP 740 provenance attestations, and all GitHub Actions are pinned
+  by commit SHA with Dependabot updates.
+
+### Added
+
+- `WHISPER_POST_PROCESS_MODEL` environment variable to choose the post-processing model.
+
 ### Fixed
 
+- The development lockfile installs the `[local]` extra on Python 3.10 again (onnxruntime 1.24+
+  has no CPython 3.10 wheels).
 - Corrected the pinned `mcp-publisher` checksum and added a manual, idempotent release retry that
   skips the PyPI upload when the immutable version already exists.
 
@@ -48,7 +67,8 @@ All notable changes to this project are documented here. The format follows
 
 - Stable cross-platform documentation and `uvx` installation workflow.
 
-[Unreleased]: https://github.com/ZahiriNatZuke/whisper-transcribe-mcp/compare/v1.1.2...HEAD
+[Unreleased]: https://github.com/ZahiriNatZuke/whisper-transcribe-mcp/compare/v1.1.3...HEAD
+[1.1.3]: https://github.com/ZahiriNatZuke/whisper-transcribe-mcp/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/ZahiriNatZuke/whisper-transcribe-mcp/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/ZahiriNatZuke/whisper-transcribe-mcp/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/ZahiriNatZuke/whisper-transcribe-mcp/compare/v1.0.1...v1.1.0
