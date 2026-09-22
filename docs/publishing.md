@@ -29,7 +29,9 @@ must remain `io.github.ZahiriNatZuke/whisper-transcribe-mcp`.
 
 The helper updates both manifests, regenerates `uv.lock`, runs metadata validation, Ruff, pytest,
 and a package build, then commits and pushes `main`. It waits for the exact CI run to pass before
-creating and pushing the version tag and creating the GitHub Release.
+creating and pushing the version tag and creating the GitHub Release. Finally, it waits for the Publish
+workflow and refreshes the local `uvx` cache (plain and `--with "mcp<2"`) so local MCP clients pick
+up the new version after a reconnect; set `SKIP_LOCAL_REFRESH=1` to skip that step.
 
 The tag starts `.github/workflows/publish.yml`, which:
 
